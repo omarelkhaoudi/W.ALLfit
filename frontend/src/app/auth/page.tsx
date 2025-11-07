@@ -10,6 +10,9 @@ import { AlertCircle, X } from "lucide-react";
 import { toast } from "react-toastify";
 import logoImage from "@/assets/WAllFit.png";
 
+// Désactiver le prerendering pour cette page
+export const dynamic = 'force-dynamic';
+
 function AuthErrorHandler() {
   const router = useRouter();
   const searchParams = useSearchParams();
