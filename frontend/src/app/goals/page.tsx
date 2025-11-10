@@ -103,6 +103,7 @@ export default function GoalsPage() {
         deadline: form.deadline || null,
         title: form.title || null,
         description: form.description || null,
+        status: "active" as GoalStatus,
       };
 
       if (editingGoal) {
