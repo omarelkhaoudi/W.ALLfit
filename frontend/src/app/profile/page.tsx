@@ -253,14 +253,38 @@ export default function ProfilePage() {
     );
   }
 
-  if (error || !profile) {
+  if (error) {
+    return (
+      <>
+        <Navbar />
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 px-4">
+          <div className="max-w-md w-full">
+            <Alert variant="danger" title="Erreur">
+              <p className="mb-4">{error}</p>
+              <Button
+                onClick={() => {
+                  fetchProfile();
+                }}
+                variant="primary"
+                size="sm"
+              >
+                Réessayer
+              </Button>
+            </Alert>
+          </div>
+        </div>
+      </>
+    );
+  }
+
+  if (!profile) {
     return (
       <>
         <Navbar />
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
-          <Alert variant="danger" title="Erreur">
-            {error || "Profil introuvable."}
-          </Alert>
+          <div className="text-center">
+            <Spinner size="lg" text="Création du profil..." />
+          </div>
         </div>
       </>
     );

@@ -35,11 +35,40 @@ export function useProfile() {
         .eq("id", user.id)
         .single();
 
-      if (profileError && profileError.code !== "PGRST116") {
-        throw profileError;
-      }
+      // Si le profil n'existe pas (code PGRST116), le créer automatiquement
+      if (profileError && profileError.code === "PGRST116") {
+        // Créer un profil par défaut
+        const defaultProfile = {
+          id: user.id,
+          email: user.email || "",
+          username: user.email?.split("@")[0] || "Utilisateur",
+          avatar_url: null,
+          weight: null,
+          taille: null,
+          goal: null,
+          activity_level: null,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        };
 
-      setProfile((profileData as Profile) || null);
+        const { data: newProfile, error: createError } = await supabase
+          .from("profiles")
+          .insert(defaultProfile)
+          .select()
+          .single();
+
+        if (createError) {
+          throw createError;
+        }
+
+        setProfile(newProfile as Profile);
+      } else if (profileError) {
+        // Autre erreur
+        throw profileError;
+      } else {
+        // Profil existe
+        setProfile((profileData as Profile) || null);
+      }
 
       // Fetch workout stats
       const { data: workouts, error: statsError } = await supabase
@@ -78,10 +107,18 @@ export function useProfile() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Utilisateur non authentifié");
 
+      // Utiliser upsert pour créer le profil s'il n'existe pas, ou le mettre à jour s'il existe
       const { error: updateError } = await supabase
         .from("profiles")
-        .update({ ...updates, updated_at: new Date().toISOString() })
-        .eq("id", user.id);
+        .upsert(
+          {
+            id: user.id,
+            email: user.email || "",
+            ...updates,
+            updated_at: new Date().toISOString(),
+          },
+          { onConflict: "id" }
+        );
 
       if (updateError) throw updateError;
 

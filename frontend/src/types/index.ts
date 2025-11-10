@@ -58,3 +58,31 @@ export interface ApiError {
   details?: any;
 }
 
+// Système d'objectifs (Goals)
+export type GoalType = "calories" | "workouts" | "weight" | "duration" | "streak";
+export type GoalStatus = "active" | "completed" | "failed" | "paused";
+
+export interface Goal {
+  id: string;
+  user_id: string;
+  type: GoalType;
+  target_value: number;
+  current_value: number;
+  deadline?: string | null;
+  status: GoalStatus;
+  title?: string | null;
+  description?: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+// Historique de poids
+export interface WeightEntry {
+  id: string;
+  user_id: string;
+  weight: number;
+  date: string;
+  notes?: string | null;
+  created_at: string;
+}
+

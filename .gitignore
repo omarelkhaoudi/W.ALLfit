@@ -110,3 +110,11 @@ storybook-static
 
 # Local Netlify folder
 .netlify
+
+# Supabase files
+supabase/
+supabase/storage/
+
+# SQL files
+supabase_goals_setup.sql
+supabase_weight_setup.sql
