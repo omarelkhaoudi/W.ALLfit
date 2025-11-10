@@ -52,7 +52,7 @@ export default function Navbar() {
   // const logoHref = isAuthenticated ? "/dashboard" : "/";
 
   return (
-    <nav className="bg-white backdrop-blur-md shadow-md border-b border-gray-200 px-4 sm:px-6 py-3 sticky top-0 z-50">
+    <nav className="bg-white backdrop-blur-md shadow-md border-b border-gray-200 px-4 sm:px-6 py-4 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto flex justify-between items-center">
         {/* Logo */}
         <Link href={"/"} className="flex items-center gap-2 group">
@@ -60,8 +60,8 @@ export default function Navbar() {
             <Image 
               src={imgTs} 
               alt="W.ALLfit Logo" 
-              width={55} 
-              height={55}
+              width={60} 
+              height={60}
               className="object-contain"
               priority
             />
@@ -69,7 +69,7 @@ export default function Navbar() {
         </Link>
 
         {/* Navigation Links - Centré */}
-        <div className="hidden md:flex items-center gap-1.5 absolute left-1/2 transform -translate-x-1/2">
+        <div className="hidden md:flex items-center gap-2 absolute left-1/2 transform -translate-x-1/2">
           {links.map((link) => {
             const Icon = link.icon;
             const isActive = pathname === link.href;
@@ -78,7 +78,7 @@ export default function Navbar() {
               <Link
                 key={link.name}
                 href={link.href}
-                className={`relative flex items-center gap-2 px-3 py-2 rounded-lg transition-all group ${
+                className={`relative flex items-center gap-2 px-4 py-2.5 rounded-lg transition-all group ${
                   isActive
                     ? "bg-gray-900 text-white"
                     : "text-gray-700 hover:bg-gray-100"
@@ -97,7 +97,7 @@ export default function Navbar() {
           {/* Logout Button */}
           <button
             onClick={handleLogout}
-            className="flex items-center gap-1.5 bg-gray-900 text-white px-3 py-2 rounded-lg hover:bg-gray-800 transition-all font-semibold text-xs"
+            className="flex items-center gap-1.5 bg-gray-900 text-white px-4 py-2.5 rounded-lg hover:bg-gray-800 transition-all font-semibold text-sm"
             title="Déconnexion"
           >
             <LogOut className="w-4 h-4" />
