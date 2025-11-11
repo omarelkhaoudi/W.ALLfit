@@ -1,7 +1,6 @@
 // Gestion centralisée des erreurs
 
 import { ApiError } from "@/types";
-import { toast } from "react-toastify";
 
 export const handleError = (error: unknown, defaultMessage?: string): void => {
   console.error("Error:", error);
@@ -16,13 +15,14 @@ export const handleError = (error: unknown, defaultMessage?: string): void => {
     message = error;
   }
 
-  toast.error(message);
+  // Les erreurs sont loggées dans la console pour le debugging
+  // Pas de notification toast pour une expérience plus professionnelle
 };
 
 export const handleApiError = (error: ApiError | unknown, defaultMessage?: string): void => {
   if (typeof error === "object" && error !== null && "message" in error) {
     const apiError = error as ApiError;
-    toast.error(apiError.message || defaultMessage || "Une erreur est survenue");
+    console.error("API Error:", apiError.message || defaultMessage || "Une erreur est survenue");
   } else {
     handleError(error, defaultMessage);
   }

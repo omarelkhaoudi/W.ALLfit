@@ -1,9 +1,10 @@
 "use client";
 import { useState } from "react";
 import { supabase } from "@/app/lib/supabaseClient";
-import { toast } from "react-toastify";
+import { useNotifications } from "@/contexts/NotificationContext";
 
 export default function RestoreAccount() {
+  const { showSuccess, showError } = useNotifications();
   const [isRestoring, setIsRestoring] = useState(false);
 
   const restoreAccount = async () => {
@@ -12,7 +13,7 @@ export default function RestoreAccount() {
       // Créer un profil d'exemple
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
-        toast.error("Veuillez vous connecter d'abord");
+        showError("Authentification requise", "Veuillez vous connecter d'abord");
         return;
       }
 
@@ -31,7 +32,7 @@ export default function RestoreAccount() {
         });
 
       if (profileError) {
-        toast.error("Erreur lors de la création du profil");
+        showError("Erreur de création", "Erreur lors de la création du profil");
         console.error(profileError);
         return;
       }
@@ -60,15 +61,13 @@ export default function RestoreAccount() {
         }
       }
 
-      toast.success("✅ Compte restauré avec succès !");
-      toast.info("🔄 Redirection vers le dashboard...");
-
+      showSuccess("Compte restauré", "Votre compte a été restauré avec succès. Redirection en cours...");
       setTimeout(() => {
         window.location.href = "/dashboard";
-      }, 2000);
+      }, 1500);
 
     } catch (error) {
-      toast.error("Erreur lors de la restauration");
+      showError("Erreur de restauration", "Erreur lors de la restauration du compte");
       console.error(error);
     } finally {
       setIsRestoring(false);

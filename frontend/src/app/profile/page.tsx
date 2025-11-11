@@ -3,7 +3,6 @@ import { useState, useEffect, useMemo, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { supabase } from "@/app/lib/supabaseClient";
 import Navbar from "@/components/Navbar";
-import { toast } from "react-toastify";
 import { 
   Edit, Save, X, Trash2, ArrowLeft, Calendar, Flame, Clock, Activity, 
   TrendingUp, Download, User, Mail, MapPin, Award, Target, AlertCircle,
@@ -11,6 +10,7 @@ import {
 } from "lucide-react";
 import { useProfile } from "@/hooks/useProfile";
 import { useWorkouts } from "@/hooks/useWorkouts";
+import { useNotifications } from "@/contexts/NotificationContext";
 import Card, { CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/Card";
 import Badge from "@/components/ui/Badge";
 import Button from "@/components/ui/Button";
@@ -42,6 +42,7 @@ export default function ProfilePage() {
   const router = useRouter();
   const { profile, stats, loading, error, updateProfile, deleteProfile, fetchProfile } = useProfile();
   const { workouts } = useWorkouts();
+  const { showSuccess, showError } = useNotifications();
   
   const [editing, setEditing] = useState(false);
   const [form, setForm] = useState({ username: "", avatar_url: "" });
@@ -190,7 +191,7 @@ export default function ProfilePage() {
     setIsSubmitting(true);
     try {
       await updateProfile(form);
-      toast.success("Profil mis à jour ✅");
+      showSuccess("Profil mis à jour", "Vos informations ont été modifiées avec succès");
       setEditing(false);
       setFormErrors({});
     } catch (err) {
@@ -202,13 +203,12 @@ export default function ProfilePage() {
 
   const handleDelete = async () => {
     if (deleteConfirmText !== "SUPPRIMER") {
-      toast.error("Veuillez taper 'SUPPRIMER' pour confirmer");
+      showError("Confirmation requise", "Veuillez taper 'SUPPRIMER' pour confirmer");
       return;
     }
 
     try {
       await deleteProfile();
-      toast.info("Compte supprimé 😢");
       router.push("/auth");
     } catch (err) {
       handleError(err, "Erreur lors de la suppression");
@@ -237,7 +237,7 @@ export default function ProfilePage() {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-    toast.success("Données exportées ✅");
+    showSuccess("Données exportées", "Vos données ont été téléchargées avec succès");
   };
 
   if (loading) {

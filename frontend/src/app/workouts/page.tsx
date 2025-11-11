@@ -1,7 +1,6 @@
 "use client";
 import { useEffect, useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { toast } from "react-toastify";
 import Navbar from "@/components/Navbar";
 import { 
   Plus, Edit, Trash2, Save, X, ArrowLeft, Dumbbell, Clock, Flame, Calendar, 
@@ -10,6 +9,7 @@ import {
 import { useWorkouts } from "@/hooks/useWorkouts";
 import { supabase } from "@/app/lib/supabaseClient";
 import { Workout } from "@/types";
+import { useNotifications } from "@/contexts/NotificationContext";
 import Card, { CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/Card";
 import Badge from "@/components/ui/Badge";
 import Button from "@/components/ui/Button";
@@ -25,9 +25,12 @@ type ViewMode = "list" | "grid";
 export default function WorkoutsPage() {
   const router = useRouter();
   const { workouts, loading, updateWorkout, deleteWorkout, fetchWorkouts } = useWorkouts();
+  const { showSuccess } = useNotifications();
   
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState({ type: "", duration: "", calories: "" });
+  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterType, setFilterType] = useState<string>("all");
@@ -52,7 +55,8 @@ export default function WorkoutsPage() {
 
   // Filtrer et trier les entraînements
   const filteredAndSortedWorkouts = useMemo(() => {
-    let filtered = [...workouts];
+    // Exclure les entraînements en cours de suppression
+    let filtered = workouts.filter(w => deletingId !== w.id);
 
     // Recherche
     if (searchQuery) {
@@ -109,7 +113,7 @@ export default function WorkoutsPage() {
     });
 
     return filtered;
-  }, [workouts, searchQuery, filterType, sortBy, dateFilter]);
+  }, [workouts, searchQuery, filterType, sortBy, dateFilter, deletingId]);
 
   // Ajouter ou modifier un entraînement
   const handleSubmit = async (e: React.FormEvent) => {
@@ -123,7 +127,7 @@ export default function WorkoutsPage() {
           duration: parseInt(form.duration),
           calories: parseInt(form.calories),
         });
-        toast.success("✅ Entraînement mis à jour !");
+        showSuccess("Entraînement mis à jour", "Les modifications ont été enregistrées");
       setEditingId(null);
     } else {
         const { data: { user } } = await supabase.auth.getUser();
@@ -139,7 +143,7 @@ export default function WorkoutsPage() {
       ]);
         
         if (error) throw error;
-        toast.success("✅ Entraînement ajouté !");
+        showSuccess("Entraînement ajouté", "Votre entraînement a été enregistré avec succès");
     }
 
     setForm({ type: "", duration: "", calories: "" });
@@ -152,16 +156,29 @@ export default function WorkoutsPage() {
     }
   };
 
-  // Supprimer un entraînement
-  const handleDelete = async (id: string) => {
-    if (!confirm("Supprimer cet entraînement ? Cette action est irréversible.")) return;
+  // Ouvrir le modal de confirmation de suppression
+  const handleDeleteClick = (id: string) => {
+    setDeleteConfirmId(id);
+  };
+
+  // Confirmer la suppression
+  const handleConfirmDelete = async () => {
+    if (!deleteConfirmId) return;
     
-    try {
-      await deleteWorkout(id);
-      toast.info("🗑️ Entraînement supprimé");
-    } catch (error) {
-      // Erreur déjà gérée par le hook
-    }
+    const idToDelete = deleteConfirmId;
+    setDeleteConfirmId(null);
+    setDeletingId(idToDelete);
+    
+    // Animation de fade-out avant suppression
+    setTimeout(async () => {
+      try {
+        await deleteWorkout(idToDelete);
+        setDeletingId(null);
+      } catch (error) {
+        setDeletingId(null);
+        // Erreur déjà gérée par le hook
+      }
+    }, 300);
   };
 
   // Commencer à éditer
@@ -203,8 +220,7 @@ export default function WorkoutsPage() {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    
-    toast.success("📥 Fichier CSV téléchargé");
+    showSuccess("Export réussi", "Le fichier CSV a été téléchargé");
   };
 
   if (loading) {
@@ -428,7 +444,11 @@ export default function WorkoutsPage() {
           ) : (
             <div className={viewMode === "grid" ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" : "space-y-4"}>
               {filteredAndSortedWorkouts.map((w) => (
-                <Card key={w.id} hover className="cursor-pointer group">
+                <Card 
+                  key={w.id} 
+                  hover 
+                  className="cursor-pointer group"
+                >
                   <CardContent padding="md">
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex items-center gap-3">
@@ -464,7 +484,7 @@ export default function WorkoutsPage() {
                           size="sm"
                           onClick={(e) => {
                             e.stopPropagation();
-                            handleDelete(w.id);
+                            handleDeleteClick(w.id);
                           }}
                         >
                           <Trash2 className="w-4 h-4" />
@@ -559,6 +579,42 @@ export default function WorkoutsPage() {
               required
             />
           </form>
+        </Modal>
+
+        {/* Modal de confirmation de suppression */}
+        <Modal
+          isOpen={deleteConfirmId !== null}
+          onClose={() => setDeleteConfirmId(null)}
+          title="Confirmer la suppression"
+          size="sm"
+          footer={
+            <>
+              <Button
+                type="button"
+                onClick={() => setDeleteConfirmId(null)}
+                variant="secondary"
+              >
+                Annuler
+              </Button>
+              <Button
+                type="button"
+                onClick={handleConfirmDelete}
+                variant="danger"
+              >
+                <Trash2 className="w-4 h-4" />
+                Supprimer
+              </Button>
+            </>
+          }
+        >
+          <div className="space-y-4">
+            <p className="text-base font-semibold text-gray-700 dark:text-gray-300">
+              Êtes-vous sûr de vouloir supprimer cet entraînement ?
+            </p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              Cette action est irréversible et l'entraînement sera définitivement supprimé.
+            </p>
+          </div>
         </Modal>
 
       {/* Floating Action Button for mobile */}

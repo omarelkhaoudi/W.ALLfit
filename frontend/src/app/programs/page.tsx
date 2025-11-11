@@ -3,7 +3,6 @@ import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import { Dumbbell, Heart, Flame, Target, Zap, TrendingUp, Clock, Calendar, Search, ArrowLeft, Info, Activity } from "lucide-react";
-import { toast } from "react-toastify";
 import { supabase } from "@/app/lib/supabaseClient";
 import { Program } from "@/types";
 import Card, { CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/Card";
@@ -13,6 +12,7 @@ import Input from "@/components/ui/Input";
 import Modal from "@/components/ui/Modal";
 import Alert from "@/components/ui/Alert";
 import { handleError } from "@/utils/errorHandler";
+import { useNotifications } from "@/contexts/NotificationContext";
 import { estimateCalories } from "@/utils/validation";
 
 // Programmes d'entraînements prédéfinis
@@ -127,6 +127,7 @@ type SortOption = "title" | "difficulty" | "duration" | "exercises";
 
 export default function ProgramsPage() {
   const router = useRouter();
+  const { showSuccess, showError } = useNotifications();
   const [selectedProgram, setSelectedProgram] = useState<Program | null>(null);
   const [isAddingProgram, setIsAddingProgram] = useState<number | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
@@ -194,7 +195,7 @@ export default function ProgramsPage() {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
-        toast.error("Vous devez être connecté pour commencer un programme");
+        showError("Authentification requise", "Vous devez être connecté pour commencer un programme");
         setIsAddingProgram(null);
         return;
       }
@@ -218,7 +219,7 @@ export default function ProgramsPage() {
       }).filter(Boolean);
 
       if (workoutsToAdd.length === 0) {
-        toast.error("Erreur lors de l'analyse des exercices");
+        showError("Erreur d'analyse", "Erreur lors de l'analyse des exercices");
         setIsAddingProgram(null);
         return;
       }
@@ -230,11 +231,13 @@ export default function ProgramsPage() {
       if (error) {
         handleError(error, "Erreur lors de l'ajout du programme");
       } else {
-        toast.success(`✅ Programme "${program.title}" ajouté avec ${workoutsToAdd.length} entraînements !`);
-        toast.info("Consultez la page 'Mes entraînements' pour voir vos nouveaux entraînements");
+        showSuccess(
+          "Programme ajouté",
+          `${program.title} a été ajouté avec ${workoutsToAdd.length} entraînement(s). Consultez la page 'Mes entraînements' pour voir vos nouveaux entraînements.`
+        );
         setTimeout(() => {
           router.push("/workouts");
-        }, 2000);
+        }, 1500);
       }
     } catch (error) {
       handleError(error, "Une erreur est survenue");

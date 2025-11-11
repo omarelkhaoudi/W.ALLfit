@@ -13,13 +13,14 @@ import Alert from "@/components/ui/Alert";
 import Spinner from "@/components/ui/Spinner";
 import SkeletonLoader, { SkeletonCard } from "@/components/ui/SkeletonLoader";
 import { Goal, GoalType, GoalStatus } from "@/types";
-import { toast } from "react-toastify";
-import { Plus, Target, ArrowLeft } from "lucide-react";
+import { Plus, Target, ArrowLeft, Trash2 } from "lucide-react";
 import Card, { CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/Card";
+import { useNotifications } from "@/contexts/NotificationContext";
 
 export default function GoalsPage() {
   const router = useRouter();
   const { goals, loading, error, addGoal, updateGoal, deleteGoal, getActiveGoals, getCompletedGoals } = useGoals();
+  const { showSuccess } = useNotifications();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingGoal, setEditingGoal] = useState<Goal | null>(null);
   const [form, setForm] = useState({
@@ -31,6 +32,8 @@ export default function GoalsPage() {
   });
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const activeGoals = getActiveGoals();
   const completedGoals = getCompletedGoals();
@@ -108,10 +111,10 @@ export default function GoalsPage() {
 
       if (editingGoal) {
         await updateGoal(editingGoal.id, goalData);
-        toast.success("Objectif mis à jour ✅");
+        showSuccess("Objectif mis à jour", "Les modifications ont été enregistrées");
       } else {
         await addGoal(goalData);
-        toast.success("Objectif créé avec succès ✅");
+        showSuccess("Objectif créé", "Votre nouvel objectif a été défini avec succès");
       }
 
       handleCloseModal();
@@ -122,15 +125,26 @@ export default function GoalsPage() {
     }
   };
 
-  const handleDelete = async (goalId: string) => {
-    if (window.confirm("Êtes-vous sûr de vouloir supprimer cet objectif ?")) {
+  const handleDeleteClick = (goalId: string) => {
+    setDeleteConfirmId(goalId);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deleteConfirmId) return;
+    
+    const idToDelete = deleteConfirmId;
+    setDeleteConfirmId(null);
+    setDeletingId(idToDelete);
+    
+    setTimeout(async () => {
       try {
-        await deleteGoal(goalId);
-        toast.success("Objectif supprimé ✅");
+        await deleteGoal(idToDelete);
+        setDeletingId(null);
       } catch (error) {
+        setDeletingId(null);
         // L'erreur est déjà gérée par le hook
       }
-    }
+    }, 300);
   };
 
   const goalTypeOptions = [
@@ -235,12 +249,12 @@ export default function GoalsPage() {
                 Objectifs actifs
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {activeGoals.map((goal) => (
+                {activeGoals.filter(g => deletingId !== g.id).map((goal) => (
                   <GoalCard
                     key={goal.id}
                     goal={goal}
                     onEdit={handleOpenModal}
-                    onDelete={handleDelete}
+                    onDelete={handleDeleteClick}
                   />
                 ))}
               </div>
@@ -254,7 +268,7 @@ export default function GoalsPage() {
                 Objectifs complétés
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {completedGoals.map((goal) => (
+                {completedGoals.filter(g => deletingId !== g.id).map((goal) => (
                   <GoalCard key={goal.id} goal={goal} showActions={false} />
                 ))}
               </div>
@@ -355,6 +369,42 @@ export default function GoalsPage() {
             />
           </div>
         </form>
+      </Modal>
+
+      {/* Modal de confirmation de suppression */}
+      <Modal
+        isOpen={deleteConfirmId !== null}
+        onClose={() => setDeleteConfirmId(null)}
+        title="Confirmer la suppression"
+        size="sm"
+        footer={
+          <>
+            <Button
+              type="button"
+              onClick={() => setDeleteConfirmId(null)}
+              variant="secondary"
+            >
+              Annuler
+            </Button>
+            <Button
+              type="button"
+              onClick={handleConfirmDelete}
+              variant="danger"
+            >
+              <Trash2 className="w-4 h-4" />
+              Supprimer
+            </Button>
+          </>
+        }
+      >
+        <div className="space-y-4">
+          <p className="text-base font-semibold text-gray-700 dark:text-gray-300">
+            Êtes-vous sûr de vouloir supprimer cet objectif ?
+          </p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            Cette action est irréversible et l'objectif sera définitivement supprimé.
+          </p>
+        </div>
       </Modal>
     </>
   );

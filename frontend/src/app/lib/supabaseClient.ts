@@ -12,4 +12,11 @@ const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || DEFAULT_SUP
 // Créer et exporter le client Supabase
 // Les valeurs par défaut seront utilisées si les variables d'environnement ne sont pas chargées
 // En production, les variables d'environnement seront toujours définies
-export const supabase: SupabaseClient = createClient(supabaseUrl, supabaseAnonKey);
+export const supabase: SupabaseClient = createClient(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    flowType: 'pkce',
+    autoRefreshToken: true,
+    persistSession: true,
+    detectSessionInUrl: true
+  }
+});

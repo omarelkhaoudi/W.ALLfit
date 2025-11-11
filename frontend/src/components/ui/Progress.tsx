@@ -22,7 +22,7 @@ export default function Progress({
   const percentage = Math.min(Math.max((value / max) * 100, 0), 100);
 
   const variantClasses = {
-    default: "bg-gray-900 dark:bg-gray-100",
+    default: "bg-gradient-to-r from-rose-500 to-rose-600",
     success: "bg-green-600 dark:bg-green-500",
     warning: "bg-yellow-600 dark:bg-yellow-500",
     danger: "bg-red-600 dark:bg-red-500",

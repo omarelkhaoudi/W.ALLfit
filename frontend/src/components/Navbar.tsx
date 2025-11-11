@@ -80,12 +80,12 @@ export default function Navbar() {
                 href={link.href}
                 className={`relative flex items-center gap-2 px-4 py-2.5 rounded-lg transition-all group ${
                   isActive
-                    ? "bg-gray-900 text-white"
-                    : "text-gray-700 hover:bg-gray-100"
+                    ? "bg-rose-500 text-white shadow-lg"
+                    : "text-gray-700 hover:bg-rose-50 hover:text-rose-600"
                 }`}
                 title={link.name}
               >
-                <Icon className={`w-5 h-5 ${isActive ? "text-white" : "text-gray-600"}`} />
+                <Icon className={`w-5 h-5 ${isActive ? "text-white" : "text-gray-600 group-hover:text-rose-600"}`} />
                 <span className="font-semibold text-sm tracking-wide">{link.name}</span>
               </Link>
             );
@@ -97,11 +97,11 @@ export default function Navbar() {
           {/* Logout Button */}
           <button
             onClick={handleLogout}
-            className="flex items-center gap-1.5 bg-gray-900 text-white px-4 py-2.5 rounded-lg hover:bg-gray-800 transition-all font-semibold text-sm"
-            title="Déconnexion"
+            className="flex items-center gap-1.5 bg-rose-500 text-white px-4 py-2.5 rounded-lg hover:bg-rose-600 transition-all font-semibold text-sm shadow-lg hover:shadow-xl"
+            title="Logout"
           >
             <LogOut className="w-4 h-4" />
-            <span className="hidden xl:inline">Déconnexion</span>
+            <span className="hidden xl:inline">Logout</span>
           </button>
 
           {/* Mobile Menu Button */}

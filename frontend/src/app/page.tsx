@@ -191,7 +191,7 @@ export default function Home() {
             />
           </div>
         </div>
-        <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold mb-6 text-center tracking-tight text-gray-900 dark:text-white drop-shadow-2xl">
+        <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold mb-6 text-center tracking-tight text-rose-600 dark:text-rose-400 drop-shadow-2xl">
           W.ALLfit - Empowering Women Through Personalized Wellness
         </h1>
         <p className="text-sm sm:text-base lg:text-lg font-normal mb-10 text-center max-w-4xl mx-auto leading-relaxed text-gray-700 dark:text-gray-300">
@@ -204,14 +204,14 @@ export default function Home() {
             <>
               <Link
                 href="/auth"
-                className="flex items-center justify-center gap-3 bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 px-8 py-4 rounded-2xl font-extrabold hover:bg-gray-800 dark:hover:bg-gray-200 transition-all shadow-2xl hover:shadow-3xl text-center uppercase tracking-wide hover:scale-105 min-w-[200px]"
+                className="flex items-center justify-center gap-3 bg-rose-500 dark:bg-rose-600 text-white px-8 py-4 rounded-2xl font-extrabold hover:bg-rose-600 dark:hover:bg-rose-700 transition-all shadow-2xl hover:shadow-3xl text-center uppercase tracking-wide hover:scale-105 min-w-[200px]"
               >
                 <LogIn className="w-6 h-6" />
                 Se connecter
               </Link>
               <Link
                 href="/auth"
-                className="flex items-center justify-center gap-3 bg-transparent border-2 border-gray-900 dark:border-gray-100 text-gray-900 dark:text-white px-8 py-4 rounded-2xl font-extrabold hover:bg-gray-900 dark:hover:bg-gray-100 hover:text-white dark:hover:text-gray-900 transition-all shadow-xl hover:shadow-2xl text-center uppercase tracking-wide hover:scale-105 min-w-[200px]"
+                className="flex items-center justify-center gap-3 bg-transparent border-2 border-rose-500 dark:border-rose-400 text-rose-600 dark:text-rose-400 px-8 py-4 rounded-2xl font-extrabold hover:bg-rose-500 dark:hover:bg-rose-600 hover:text-white transition-all shadow-xl hover:shadow-2xl text-center uppercase tracking-wide hover:scale-105 min-w-[200px]"
               >
                 <UserPlus className="w-6 h-6" />
                 S'inscrire
@@ -230,28 +230,28 @@ export default function Home() {
 
       {/* Features preview */}
       <div className="mt-16 grid grid-cols-1 sm:grid-cols-3 gap-8 max-w-5xl w-full">
-        <div className="bg-white dark:bg-gray-800 p-8 rounded-2xl text-center border-2 border-gray-200 dark:border-gray-700 shadow-2xl hover:shadow-3xl transition-all hover:scale-105">
+        <div className="bg-white dark:bg-gray-800 p-8 rounded-2xl text-center border-2 border-rose-100 dark:border-rose-900/30 shadow-2xl hover:shadow-3xl transition-all hover:scale-105">
           <div className="flex justify-center mb-4">
-            <div className="p-4 bg-gray-900 dark:bg-gray-100 rounded-2xl">
-              <BarChart3 className="w-10 h-10 text-white dark:text-gray-900" />
+            <div className="p-4 bg-rose-500 dark:bg-rose-600 rounded-2xl">
+              <BarChart3 className="w-10 h-10 text-white" />
             </div>
           </div>
           <h3 className="text-2xl font-extrabold mb-3 uppercase tracking-wide text-gray-900 dark:text-white">Suivi des statistiques</h3>
           <p className="text-base font-semibold text-gray-600 dark:text-gray-400 leading-relaxed">Calories brûlées, durée d'entraînement, progression du poids</p>
         </div>
-        <div className="bg-white dark:bg-gray-800 p-8 rounded-2xl text-center border-2 border-gray-200 dark:border-gray-700 shadow-2xl hover:shadow-3xl transition-all hover:scale-105">
+        <div className="bg-white dark:bg-gray-800 p-8 rounded-2xl text-center border-2 border-rose-100 dark:border-rose-900/30 shadow-2xl hover:shadow-3xl transition-all hover:scale-105">
           <div className="flex justify-center mb-4">
-            <div className="p-4 bg-gray-900 dark:bg-gray-100 rounded-2xl">
-              <TrendingUp className="w-10 h-10 text-white dark:text-gray-900" />
+            <div className="p-4 bg-rose-500 dark:bg-rose-600 rounded-2xl">
+              <TrendingUp className="w-10 h-10 text-white" />
             </div>
           </div>
           <h3 className="text-2xl font-extrabold mb-3 uppercase tracking-wide text-gray-900 dark:text-white">Graphiques intelligents</h3>
           <p className="text-base font-semibold text-gray-600 dark:text-gray-400 leading-relaxed">Visualisez votre évolution semaine par semaine</p>
         </div>
-        <div className="bg-white dark:bg-gray-800 p-8 rounded-2xl text-center border-2 border-gray-200 dark:border-gray-700 shadow-2xl hover:shadow-3xl transition-all hover:scale-105">
+        <div className="bg-white dark:bg-gray-800 p-8 rounded-2xl text-center border-2 border-rose-100 dark:border-rose-900/30 shadow-2xl hover:shadow-3xl transition-all hover:scale-105">
           <div className="flex justify-center mb-4">
-            <div className="p-4 bg-gray-900 dark:bg-gray-100 rounded-2xl">
-              <Target className="w-10 h-10 text-white dark:text-gray-900" />
+            <div className="p-4 bg-rose-500 dark:bg-rose-600 rounded-2xl">
+              <Target className="w-10 h-10 text-white" />
             </div>
           </div>
           <h3 className="text-2xl font-extrabold mb-3 uppercase tracking-wide text-gray-900 dark:text-white">Objectifs personnalisés</h3>
@@ -280,7 +280,7 @@ export default function Home() {
                 className={`cursor-pointer transition-all ${!isAuthenticated ? 'opacity-75' : ''}`}
                 onClick={() => handleProgramClick(program.id)}
               >
-                <div className={`${program.color} p-5 text-white dark:text-gray-900`}>
+                <div className="bg-gradient-to-br from-rose-500 to-rose-600 p-5 text-white">
                   <div className="flex items-center gap-3 mb-2">
                     <IconComponent className="w-8 h-8" />
                     <h3 className="text-lg font-extrabold uppercase tracking-wide flex-1 line-clamp-1">

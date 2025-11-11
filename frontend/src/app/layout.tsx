@@ -2,8 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/contexts/ThemeContext";
-import { ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import { NotificationProvider } from "@/contexts/NotificationContext";
 import ErrorBoundaryWrapper from "@/components/ErrorBoundaryWrapper";
 import Footer from "@/components/Footer";
 
@@ -71,25 +70,14 @@ export default function RootLayout({
       >
         <ErrorBoundaryWrapper>
           <ThemeProvider>
-            <div className="flex flex-col min-h-screen">
-              <main className="flex-1">
-                {children}
-              </main>
-              <Footer />
-            </div>
-            <ToastContainer
-              position="top-right"
-              autoClose={3000}
-              hideProgressBar={false}
-              newestOnTop={true}
-              closeOnClick
-              rtl={false}
-              pauseOnFocusLoss
-              draggable
-              pauseOnHover
-              theme="colored"
-              toastClassName="dark:bg-gray-800 dark:text-white rounded-2xl"
-            />
+            <NotificationProvider>
+              <div className="flex flex-col min-h-screen">
+                <main className="flex-1">
+                  {children}
+                </main>
+                <Footer />
+              </div>
+            </NotificationProvider>
           </ThemeProvider>
         </ErrorBoundaryWrapper>
       </body>

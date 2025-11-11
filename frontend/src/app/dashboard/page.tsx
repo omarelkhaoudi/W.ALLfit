@@ -12,7 +12,6 @@ import {
 } from "recharts";
 import { Activity, TrendingUp, Target, Plus, User, Edit, LogOut, Flame, Clock, Award, Zap } from "lucide-react";
 import { supabase } from "@/app/lib/supabaseClient";
-import { toast } from "react-toastify";
 import Navbar from "@/components/Navbar";
 import Card, { CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/Card";
 import Badge from "@/components/ui/Badge";
@@ -24,12 +23,14 @@ import Input from "@/components/ui/Input";
 import { useWorkouts } from "@/hooks/useWorkouts";
 import { useProfile } from "@/hooks/useProfile";
 import { Workout } from "@/types";
+import { useNotifications } from "@/contexts/NotificationContext";
 
 
 export default function Dashboard() {
   const router = useRouter();
   const { workouts, loading: workoutsLoading, addWorkout, fetchWorkouts } = useWorkouts();
   const { profile, stats, loading: profileLoading } = useProfile();
+  const { showSuccess } = useNotifications();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [workoutForm, setWorkoutForm] = useState({ type: "", duration: "", calories: "" });
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -88,7 +89,7 @@ export default function Dashboard() {
         calories: parseInt(workoutForm.calories),
       } as Omit<Workout, "id" | "created_at" | "updated_at">);
       
-      toast.success("✅ Entraînement ajouté avec succès !");
+      showSuccess("Entraînement ajouté", "Votre entraînement a été enregistré avec succès");
       setWorkoutForm({ type: "", duration: "", calories: "" });
       setIsModalOpen(false);
       await fetchWorkouts();
@@ -241,8 +242,8 @@ export default function Dashboard() {
               <Card key={idx} hover>
                 <CardContent padding="md">
                   <div className="flex items-center justify-between mb-5">
-                    <div className="p-3.5 rounded-2xl bg-gray-900 dark:bg-gray-100">
-                      <stat.icon className="w-6 h-6 text-white dark:text-gray-900" />
+                    <div className="p-3.5 rounded-2xl bg-gradient-to-br from-rose-500 to-rose-600">
+                      <stat.icon className="w-6 h-6 text-white" />
                     </div>
                     <Badge variant={stat.color as any} size="sm">
                       {stat.change}
@@ -301,7 +302,7 @@ export default function Dashboard() {
                         return (
                           <div key={idx} className="flex-1 flex flex-col items-center gap-3">
                             <div
-                              className="w-full bg-gray-900 dark:bg-gray-100 rounded-t-2xl transition-all hover:bg-gray-800 dark:hover:bg-gray-200 cursor-pointer hover:scale-105 shadow-lg"
+                              className="w-full bg-gradient-to-t from-rose-600 to-rose-500 rounded-t-2xl transition-all hover:from-rose-700 hover:to-rose-600 cursor-pointer hover:scale-105 shadow-lg"
                               style={{ height: `${(count / maxCount) * 100}%` }}
                               title={`${count} entraînement(s)`}
                             ></div>
@@ -333,9 +334,9 @@ export default function Dashboard() {
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="flex items-center gap-4 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-2xl">
-                      <div className="p-3 bg-gray-900 dark:bg-gray-100 rounded-2xl">
-                        <Award className="w-6 h-6 text-white dark:text-gray-900" />
+                    <div className="flex items-center gap-4 p-4 bg-rose-50 dark:bg-rose-900/20 rounded-2xl border border-rose-100 dark:border-rose-900/30">
+                      <div className="p-3 bg-gradient-to-br from-rose-500 to-rose-600 rounded-2xl">
+                        <Award className="w-6 h-6 text-white" />
                       </div>
                       <div>
                         <p className="font-extrabold text-gray-900 dark:text-white">Débutant</p>
@@ -344,9 +345,9 @@ export default function Dashboard() {
                         </p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-4 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-2xl">
-                      <div className="p-3 bg-gray-900 dark:bg-gray-100 rounded-2xl">
-                        <Zap className="w-6 h-6 text-white dark:text-gray-900" />
+                    <div className="flex items-center gap-4 p-4 bg-rose-50 dark:bg-rose-900/20 rounded-2xl border border-rose-100 dark:border-rose-900/30">
+                      <div className="p-3 bg-gradient-to-br from-rose-500 to-rose-600 rounded-2xl">
+                        <Zap className="w-6 h-6 text-white" />
                       </div>
                       <div>
                         <p className="font-extrabold text-gray-900 dark:text-white">Actif</p>
@@ -355,9 +356,9 @@ export default function Dashboard() {
                         </p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-4 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-2xl">
-                      <div className="p-3 bg-gray-900 dark:bg-gray-100 rounded-2xl">
-                        <Flame className="w-6 h-6 text-white dark:text-gray-900" />
+                    <div className="flex items-center gap-4 p-4 bg-rose-50 dark:bg-rose-900/20 rounded-2xl border border-rose-100 dark:border-rose-900/30">
+                      <div className="p-3 bg-gradient-to-br from-rose-500 to-rose-600 rounded-2xl">
+                        <Flame className="w-6 h-6 text-white" />
                       </div>
                       <div>
                         <p className="font-extrabold text-gray-900 dark:text-white">Calories</p>
@@ -366,9 +367,9 @@ export default function Dashboard() {
                         </p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-4 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-2xl">
-                      <div className="p-3 bg-gray-900 dark:bg-gray-100 rounded-2xl">
-                        <Target className="w-6 h-6 text-white dark:text-gray-900" />
+                    <div className="flex items-center gap-4 p-4 bg-rose-50 dark:bg-rose-900/20 rounded-2xl border border-rose-100 dark:border-rose-900/30">
+                      <div className="p-3 bg-gradient-to-br from-rose-500 to-rose-600 rounded-2xl">
+                        <Target className="w-6 h-6 text-white" />
                       </div>
                       <div>
                         <p className="font-extrabold text-gray-900 dark:text-white">Objectif</p>

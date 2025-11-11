@@ -7,7 +7,6 @@ import { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { AlertCircle, X } from "lucide-react";
-import { toast } from "react-toastify";
 import logoImage from "@/assets/WAllFit.png";
 
 // Désactiver le prerendering pour cette page
@@ -36,12 +35,20 @@ function AuthErrorHandler() {
         case "access_denied":
           errorMessage = "Accès refusé. Vous devez autoriser l'application.";
           break;
+        case "no_code":
+          errorMessage = "Aucun code d'autorisation reçu. Veuillez réessayer.";
+          break;
+        case "no_session":
+          errorMessage = "Erreur lors de la création de la session. Veuillez réessayer.";
+          break;
+        case "configuration_error":
+          errorMessage = "Erreur de configuration. Veuillez contacter le support.";
+          break;
         default:
-          errorMessage = errorDescription || errorMessage;
+          errorMessage = errorDescription ? decodeURIComponent(errorDescription) : errorMessage;
       }
       
       setError(errorMessage);
-      toast.error(errorMessage);
       
       // Nettoyer l'URL
       router.replace("/auth");
@@ -73,9 +80,15 @@ function AuthErrorHandler() {
 }
 
 export default function AuthPage() {
-  const redirectTo =
-    typeof window !== "undefined" ? `${window.location.origin}/auth/callback` : undefined;
+  const [redirectTo, setRedirectTo] = useState<string | undefined>(undefined);
   const router = useRouter();
+
+  useEffect(() => {
+    // S'assurer que redirectTo est défini côté client
+    if (typeof window !== "undefined") {
+      setRedirectTo(`${window.location.origin}/auth/callback`);
+    }
+  }, []);
 
   useEffect(() => {
     let mounted = true;
@@ -130,46 +143,49 @@ export default function AuthPage() {
         </Suspense>
 
         {/* Auth Form */}
-        <div className="[&_.supabase-auth-ui_*]:!rounded-2xl [&_.supabase-auth-ui_*]:!font-semibold [&_.supabase-auth-ui_*]:!tracking-wide [&_input]:!px-5 [&_input]:!py-4 [&_input]:!border-2 [&_input]:!rounded-2xl [&_input]:!text-sm [&_button]:!px-6 [&_button]:!py-4 [&_button]:!rounded-2xl [&_button]:!font-extrabold [&_button]:!uppercase [&_button]:!tracking-wide [&_button]:!shadow-xl [&_button:hover]:!shadow-2xl [&_button:hover]:!scale-105 [&_button]:!transition-all">
-          <Auth
-            supabaseClient={supabase}
-            appearance={{
-              theme: ThemeSupa,
-              variables: {
-                default: {
-                  colors: {
-                    brand: '#111827',
-                    brandAccent: '#374151',
-                  },
-                  radii: {
-                    borderRadiusButton: '1rem',
-                    buttonBorderRadius: '1rem',
-                    inputBorderRadius: '1rem',
-                  },
-                  fontSizes: {
-                    baseBodySize: '14px',
-                    baseInputSize: '14px',
+        {redirectTo && (
+          <div className="[&_.supabase-auth-ui_*]:!rounded-2xl [&_.supabase-auth-ui_*]:!font-semibold [&_.supabase-auth-ui_*]:!tracking-wide [&_input]:!px-5 [&_input]:!py-4 [&_input]:!border-2 [&_input]:!rounded-2xl [&_input]:!text-sm [&_button]:!px-6 [&_button]:!py-4 [&_button]:!rounded-2xl [&_button]:!font-extrabold [&_button]:!uppercase [&_button]:!tracking-wide [&_button]:!shadow-xl [&_button:hover]:!shadow-2xl [&_button:hover]:!scale-105 [&_button]:!transition-all">
+            <Auth
+              supabaseClient={supabase}
+              appearance={{
+                theme: ThemeSupa,
+                variables: {
+                  default: {
+                    colors: {
+                      brand: '#f43f5e',
+                      brandAccent: '#e11d48',
+                    },
+                    radii: {
+                      borderRadiusButton: '1rem',
+                      buttonBorderRadius: '1rem',
+                      inputBorderRadius: '1rem',
+                    },
+                    fontSizes: {
+                      baseBodySize: '14px',
+                      baseInputSize: '14px',
+                    },
                   },
                 },
-              },
-            }}
-            providers={["google"]}
-            redirectTo={redirectTo}
-            magicLink={false}
-            localization={{
-              variables: {
-                sign_in: { 
-                  email_label: "Email", 
-                  password_label: "Mot de passe",
-                  button_label: "Se connecter",
+              }}
+              providers={["google"]}
+              redirectTo={redirectTo}
+              magicLink={false}
+              onlyThirdPartyProviders={false}
+              localization={{
+                variables: {
+                  sign_in: { 
+                    email_label: "Email", 
+                    password_label: "Mot de passe",
+                    button_label: "Se connecter",
+                  },
+                  sign_up: {
+                    button_label: "S'inscrire",
+                  },
                 },
-                sign_up: {
-                  button_label: "S'inscrire",
-                },
-              },
-            }}
-          />
-        </div>
+              }}
+            />
+          </div>
+        )}
       </div>
     </div>
   );

@@ -12,8 +12,8 @@ import Alert from "@/components/ui/Alert";
 import Spinner from "@/components/ui/Spinner";
 import SkeletonLoader, { SkeletonCard } from "@/components/ui/SkeletonLoader";
 import { WeightEntry } from "@/types";
-import { toast } from "react-toastify";
 import { Plus, ArrowLeft, TrendingDown, TrendingUp, Minus, Edit, Trash2, Scale } from "lucide-react";
+import { useNotifications } from "@/contexts/NotificationContext";
 import {
   LineChart,
   Line,
@@ -49,6 +49,9 @@ export default function WeightHistoryPage() {
   });
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const { showSuccess } = useNotifications();
 
   const latestWeight = getLatestWeight();
   const weightChange = getWeightChange();
@@ -121,10 +124,10 @@ export default function WeightHistoryPage() {
           form.date,
           form.notes
         );
-        toast.success("Poids mis à jour ✅");
+        showSuccess("Poids mis à jour", "Les modifications ont été enregistrées");
       } else {
         await addWeightEntry(Number(form.weight), form.date, form.notes);
-        toast.success("Poids enregistré ✅");
+        showSuccess("Poids enregistré", "Votre nouvelle mesure a été ajoutée");
       }
 
       handleCloseModal();
@@ -135,15 +138,26 @@ export default function WeightHistoryPage() {
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (window.confirm("Êtes-vous sûr de vouloir supprimer cette entrée ?")) {
+  const handleDeleteClick = (id: string) => {
+    setDeleteConfirmId(id);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deleteConfirmId) return;
+    
+    const idToDelete = deleteConfirmId;
+    setDeleteConfirmId(null);
+    setDeletingId(idToDelete);
+    
+    setTimeout(async () => {
       try {
-        await deleteWeightEntry(id);
-        toast.success("Entrée supprimée ✅");
+        await deleteWeightEntry(idToDelete);
+        setDeletingId(null);
       } catch (error) {
+        setDeletingId(null);
         // L'erreur est déjà gérée par le hook
       }
-    }
+    }, 300);
   };
 
   if (loading) {
@@ -214,8 +228,8 @@ export default function WeightHistoryPage() {
             <Card>
               <CardContent padding="md">
                 <div className="flex items-center justify-between mb-5">
-                  <div className="p-3.5 rounded-2xl bg-gray-900 dark:bg-gray-100">
-                    <Scale className="w-6 h-6 text-white dark:text-gray-900" />
+                  <div className="p-3.5 rounded-2xl bg-gradient-to-br from-rose-500 to-rose-600">
+                    <Scale className="w-6 h-6 text-white" />
                   </div>
                 </div>
                 <h3 className="text-3xl font-extrabold text-gray-900 dark:text-white mb-2 tracking-tight">
@@ -232,13 +246,13 @@ export default function WeightHistoryPage() {
                 <Card>
                   <CardContent padding="md">
                     <div className="flex items-center justify-between mb-5">
-                      <div className="p-3.5 rounded-2xl bg-gray-900 dark:bg-gray-100">
+                      <div className="p-3.5 rounded-2xl bg-gradient-to-br from-rose-500 to-rose-600">
                         {weightChange.change > 0 ? (
-                          <TrendingUp className="w-6 h-6 text-white dark:text-gray-900" />
+                          <TrendingUp className="w-6 h-6 text-white" />
                         ) : weightChange.change < 0 ? (
-                          <TrendingDown className="w-6 h-6 text-white dark:text-gray-900" />
+                          <TrendingDown className="w-6 h-6 text-white" />
                         ) : (
-                          <Minus className="w-6 h-6 text-white dark:text-gray-900" />
+                          <Minus className="w-6 h-6 text-white" />
                         )}
                       </div>
                     </div>
@@ -285,8 +299,8 @@ export default function WeightHistoryPage() {
                   <AreaChart data={chartData}>
                     <defs>
                       <linearGradient id="colorWeight" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#1f2937" stopOpacity={0.8} />
-                        <stop offset="95%" stopColor="#1f2937" stopOpacity={0} />
+                        <stop offset="5%" stopColor="#f43f5e" stopOpacity={0.8} />
+                        <stop offset="95%" stopColor="#f43f5e" stopOpacity={0} />
                       </linearGradient>
                     </defs>
                     <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
@@ -310,7 +324,7 @@ export default function WeightHistoryPage() {
                     <Area
                       type="monotone"
                       dataKey="weight"
-                      stroke="#1f2937"
+                      stroke="#f43f5e"
                       strokeWidth={2}
                       fillOpacity={1}
                       fill="url(#colorWeight)"
@@ -332,7 +346,7 @@ export default function WeightHistoryPage() {
               </CardHeader>
               <CardContent padding="md">
                 <div className="space-y-3">
-                  {entries.map((entry) => {
+                  {entries.filter(e => deletingId !== e.id).map((entry) => {
                     const entryDate = new Date(entry.date);
                     const formattedDate = entryDate.toLocaleDateString("fr-FR", {
                       day: "numeric",
@@ -346,8 +360,8 @@ export default function WeightHistoryPage() {
                         className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600"
                       >
                         <div className="flex items-center gap-4">
-                          <div className="p-3 bg-gray-900 dark:bg-gray-100 rounded-lg">
-                            <Scale className="w-5 h-5 text-white dark:text-gray-900" />
+                          <div className="p-3 bg-gradient-to-br from-rose-500 to-rose-600 rounded-lg">
+                            <Scale className="w-5 h-5 text-white" />
                           </div>
                           <div>
                             <p className="font-extrabold text-gray-900 dark:text-white text-lg">
@@ -372,7 +386,7 @@ export default function WeightHistoryPage() {
                             <Edit className="w-4 h-4" />
                           </Button>
                           <Button
-                            onClick={() => handleDelete(entry.id)}
+                            onClick={() => handleDeleteClick(entry.id)}
                             variant="danger"
                             size="sm"
                           >
@@ -463,6 +477,42 @@ export default function WeightHistoryPage() {
             />
           </div>
         </form>
+      </Modal>
+
+      {/* Modal de confirmation de suppression */}
+      <Modal
+        isOpen={deleteConfirmId !== null}
+        onClose={() => setDeleteConfirmId(null)}
+        title="Confirmer la suppression"
+        size="sm"
+        footer={
+          <>
+            <Button
+              type="button"
+              onClick={() => setDeleteConfirmId(null)}
+              variant="secondary"
+            >
+              Annuler
+            </Button>
+            <Button
+              type="button"
+              onClick={handleConfirmDelete}
+              variant="danger"
+            >
+              <Trash2 className="w-4 h-4" />
+              Supprimer
+            </Button>
+          </>
+        }
+      >
+        <div className="space-y-4">
+          <p className="text-base font-semibold text-gray-700 dark:text-gray-300">
+            Êtes-vous sûr de vouloir supprimer cette entrée de poids ?
+          </p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            Cette action est irréversible et l'entrée sera définitivement supprimée.
+          </p>
+        </div>
       </Modal>
     </>
   );
